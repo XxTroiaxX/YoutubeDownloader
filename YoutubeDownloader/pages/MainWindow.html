@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Youtube Downloader</title>
+</head>
+<body>
+    <style>
+        html,body{
+            font-family: 'Courier New', Courier, monospace;
+            background-color: rgb(32, 32, 32);
+        }
+
+        .maindiv{
+            width: 100%;
+            text-align: center;
+        }
+
+        input[type="text"]{
+            width: 100%;
+            padding: 5px;
+            border-radius: 10px;
+            border:none;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        button{
+            margin-top: 10px;
+            padding: 10px;
+            color: white;
+            background-color: rgb(59, 57, 57);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .maininput{
+            margin-top: 10px;
+            color: white;
+        }
+
+        .maininput div{
+            display: inline-block;
+        }
+
+    </style>
+    <div class="maindiv">
+        <form>
+            <div>
+                <span style="font-size:20px;font-weight:bold;color:white;" id="msg">Insira o Url:</span>
+            </div>
+            <div style="margin-top:10px">
+                <input type="text" id="item" placeholder="link...">
+            </div>
+            <div class="maininput" style="color: white;">
+                <div>
+                    <input id="mus1" type="radio" name="typeofmus" value="flac">
+                    <label for="mus1">Flac</label>    
+                </div>
+                <div>
+                    <input id="mus2"  type="radio" name="typeofmus" value="mp3">
+                    <label for="mus2">Mp3</label>    
+                </div>
+                <div>
+                    <input id="mus3" type="radio" name="typeofmus" value="mp4">
+                    <label for="mus3">Mp4</label>    
+                </div>
+            </div>
+            <div>
+                <button type="submit">Click me!</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const electron = require("electron");
+        const {ipcRenderer} = electron;
+
+        const form = document.querySelector("form");
+        form.addEventListener("submit", submitForm);
+
+        function submitForm(e){
+            try{
+                e.preventDefault();
+                const item = document.querySelector("#item").value;
+                const checked = document.querySelector('input[name="typeofmus"]:checked').value;
+                const data = {link: item, file: checked};
+                ipcRenderer.send("item:link", data);
+            }
+            catch(ex)
+            {
+                if(ex instanceof TypeError){
+                    alert("escolha um tipo de ficheiro");
+                }
+                else{
+                    alert("Ocurreu um erro");
+                }
+            }
+        }
+
+        ipcRenderer.on("item:success", (e,item) => {
+            alert(item.title + "."+item.file+" foi guardado com sucesso!");
+        });
+
+        ipcRenderer.on("item:videoidinvalid", () => {
+            alert("Link Invalido");
+        });
+
+        ipcRenderer.on("item:error", () => {
+            alert("Ocurreu um erro");
+        });
+    </script>
+</body>
+</html>
