@@ -6,13 +6,10 @@ const fs = require("fs");
 
 const {app, BrowserWindow, Menu, ipcMain} = electron;
 
-let mainWindow;
-
 app.on("ready", () => {
-
     mainWindow = new BrowserWindow({
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
         },
         width: 300,
         height: 180,
@@ -32,23 +29,25 @@ app.on("ready", () => {
 });
 
 ipcMain.on("item:link", async (e,item) => {
-    try{
+    if(islikend(item.link)){
         var info = await ytdl.getInfo(item.link);
         const title = getname(info.videoDetails.title);
         ytdl(item.link).pipe(fs.createWriteStream('../'+title+'.' + item.file)); 
         const data = {title:title, file: item.file};
-        mainWindow.webContents.send("item:success",data);
-    }catch(ex){
-        console.log(ex);
-        if(ex instanceof Error){
-            mainWindow.webContents.send("item:videoidinvalid"); 
-        }
-        else{
-            mainWindow.webContents.send("item:error");
-            console.log(ex); 
-        }
+        ErrorWindow("Sucesso");     
+    }else{
+        ErrorWindow("Link Invalido"); 
     }
 });
+
+function islikend(link){
+    var video = link.toString().split("=")[1];
+    if(video !== undefined){
+        return true;
+    }else{
+        return false;
+    }
+}
 
 function getname(string){
     var format = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
@@ -61,3 +60,35 @@ function getname(string){
     var returnstring = array.join("");
     return returnstring;
 }
+
+let AddWindow;
+function ErrorWindow(string){
+    AddWindow = new BrowserWindow({
+        width: 300,
+        height: 120,
+        title: "Add shopping list item",
+        webPreferences: {
+            nodeIntegration: true
+        },
+        resizable: false,
+    });
+    AddWindow.setMenuBarVisibility(false);
+
+    AddWindow.loadURL(url.format({
+        pathname: path.join(__dirname, "pages/ErrorPage.html"),
+        protocol: 'file',
+        slashes: true,
+    }));
+
+    AddWindow.webContents.once('dom-ready', () => {
+        AddWindow.webContents.send('item:msg', string);
+    });
+
+    AddWindow.on("close", () => {
+        AddWindow = null;
+    });
+}
+
+ipcMain.on("item:close", () => {
+    AddWindow.close();
+});

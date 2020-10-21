@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Mensagem</title>
+</head>
+<body>
+    <style>
+        html,body{
+            font-family: 'Courier New', Courier, monospace;
+            background-color: rgb(32, 32, 32);
+            color: white;
+        }
+
+        .maindiv{
+            width: 100%;
+            text-align: center;
+        }
+
+        button{
+            margin-top: 10px;
+            padding: 10px;
+            color: white;
+            background-color: rgb(59, 57, 57);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+    </style>
+
+    <div class="maindiv">
+        <div>
+            <span style="font-size:20px;font-weight:bold;" id="msg"></span>
+        </div>
+        <div>
+            <button type="button" onclick="fechar();">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        const electron = require('electron');
+        const {ipcRenderer} = electron;
+
+        ipcRenderer.on("item:msg", (e,item) => {
+            document.getElementById("msg").innerText = item;
+        });
+
+        function fechar(){
+            ipcRenderer.send("item:close");
+        }
+    </script>
+</body>
+</html>
