@@ -34,11 +34,12 @@ app.on("ready", () => {
 ipcMain.on("item:link", async (e,item) => {
     try{
         var info = await ytdl.getInfo(item.link);
-        const title = info.videoDetails.title.replace(" " , "_");
+        const title = getname(info.videoDetails.title);
         ytdl(item.link).pipe(fs.createWriteStream('../'+title+'.' + item.file)); 
-        const data = {title: title, file: item.file};
+        const data = {title:title, file: item.file};
         mainWindow.webContents.send("item:success",data);
     }catch(ex){
+        console.log(ex);
         if(ex instanceof Error){
             mainWindow.webContents.send("item:videoidinvalid"); 
         }
@@ -47,5 +48,16 @@ ipcMain.on("item:link", async (e,item) => {
             console.log(ex); 
         }
     }
-})
+});
 
+function getname(string){
+    var format = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+    var array = Array.from(string);
+    for(var i = 0; i < array.length; i++){
+        if(format.test(array[i]) == true){
+            array[i] = "";
+        }
+    }
+    var returnstring = array.join("");
+    return returnstring;
+}
