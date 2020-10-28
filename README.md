@@ -1,5 +1,5 @@
 # YoutubeDownloader
 
-Aplicação para o download de videos do youtube
+Download videos from youtube in FLAC, MP3 and MP4.
 
-Com este projeto, um utilizador terá a oportunidade de fazer download de videos em FLAC,MP3 e MP4
+This project was made with NODE.JS using Electron FrameWork.
